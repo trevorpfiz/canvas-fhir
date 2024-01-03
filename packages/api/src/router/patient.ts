@@ -6,6 +6,7 @@ import {
   post_CreatePatient,
 } from "../canvas/canvas-client";
 import { env } from "../env.mjs";
+import { handleFhirApiResponse } from "../lib/utils";
 import { createTRPCRouter, protectedCanvasProcedure } from "../trpc";
 
 export const patientRouter = createTRPCRouter({
@@ -18,16 +19,11 @@ export const patientRouter = createTRPCRouter({
       // search /Patient
       const patientsData = await api.get("/Patient", { query });
 
-      // Validate response
-      const validatedData = get_SearchPatient.response.parse(patientsData);
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `${JSON.stringify(validatedData)}`,
-        });
-      }
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
+        patientsData,
+        get_SearchPatient.response,
+      );
 
       return validatedData;
     }),
@@ -42,16 +38,11 @@ export const patientRouter = createTRPCRouter({
         path: { patient_id: path.patient_id },
       });
 
-      // Validate response
-      const validatedData = get_ReadPatient.response.parse(patientData);
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `${JSON.stringify(validatedData)}`,
-        });
-      }
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
+        patientData,
+        get_ReadPatient.response,
+      );
 
       return validatedData;
     }),

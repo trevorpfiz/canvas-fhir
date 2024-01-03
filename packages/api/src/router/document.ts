@@ -1,9 +1,8 @@
-import { TRPCError } from "@trpc/server";
-
 import {
   get_ReadDocumentreference,
   get_SearchDocumentreference,
 } from "../canvas/canvas-client";
+import { handleFhirApiResponse } from "../lib/utils";
 import { createTRPCRouter, protectedCanvasProcedure } from "../trpc";
 
 export const documentRouter = createTRPCRouter({
@@ -22,18 +21,11 @@ export const documentRouter = createTRPCRouter({
         },
       );
 
-      // Validate response
-      const validatedData = get_ReadDocumentreference.response.parse(
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
         documentReferenceData,
+        get_ReadDocumentreference.response,
       );
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `${JSON.stringify(validatedData)}`,
-        });
-      }
 
       return validatedData;
     }),
@@ -54,23 +46,11 @@ export const documentRouter = createTRPCRouter({
         },
       });
 
-      // Validate response
-      const validatedData =
-        get_SearchDocumentreference.response.parse(documentsData);
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        const issues = validatedData.issue
-          .map(
-            (issue) =>
-              `${issue.severity}: ${issue.code}, ${issue.details?.text}`,
-          )
-          .join("; ");
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `FHIR OperationOutcome Error: ${issues}`,
-        });
-      }
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
+        documentsData,
+        get_SearchDocumentreference.response,
+      );
 
       return validatedData;
     }),

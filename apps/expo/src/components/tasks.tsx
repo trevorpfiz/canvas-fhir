@@ -67,7 +67,7 @@ export default function Tasks() {
               <TouchableOpacity activeOpacity={0.8} className="flex-1">
                 <View
                   className={cn(
-                    "ml-4 w-52 flex-1 flex-col justify-between gap-4 rounded-xl p-2",
+                    "ml-4 w-52 flex-1 flex-col justify-between gap-16 rounded-xl p-2",
                     {
                       "border-blue-400 bg-blue-500":
                         item.resource.status === "requested",
@@ -78,7 +78,7 @@ export default function Tasks() {
                     },
                   )}
                 >
-                  <Text className="text-sm font-medium text-white">
+                  <Text className="line-clamp-4 text-sm font-medium text-white">
                     {item.resource.description}
                   </Text>
                   {item.resource.status !== "completed" && (

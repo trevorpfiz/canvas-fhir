@@ -1,4 +1,3 @@
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import {
@@ -13,6 +12,7 @@ import {
   get_SearchObservation,
   get_UpdateQuestionnaireresponse,
 } from "../canvas/canvas-client";
+import { handleFhirApiResponse } from "../lib/utils";
 import { createTRPCRouter, protectedCanvasProcedure } from "../trpc";
 
 export const patientMedicalHistoryRouter = createTRPCRouter({
@@ -29,23 +29,11 @@ export const patientMedicalHistoryRouter = createTRPCRouter({
         },
       });
 
-      // Validate response
-      const validatedData =
-        get_SearchAllergyintolerance.response.parse(allergiesData);
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        const issues = validatedData.issue
-          .map(
-            (issue) =>
-              `${issue.severity}: ${issue.code}, ${issue.details?.text}`,
-          )
-          .join("; ");
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `FHIR OperationOutcome Error: ${issues}`,
-        });
-      }
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
+        allergiesData,
+        get_SearchAllergyintolerance.response,
+      );
 
       return validatedData;
     }),
@@ -62,22 +50,11 @@ export const patientMedicalHistoryRouter = createTRPCRouter({
         },
       });
 
-      // Validate response
-      const validatedData = get_SearchCondition.response.parse(conditionsData);
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        const issues = validatedData.issue
-          .map(
-            (issue) =>
-              `${issue.severity}: ${issue.code}, ${issue.details?.text}`,
-          )
-          .join("; ");
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `FHIR OperationOutcome Error: ${issues}`,
-        });
-      }
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
+        conditionsData,
+        get_SearchCondition.response,
+      );
 
       return validatedData;
     }),
@@ -94,16 +71,11 @@ export const patientMedicalHistoryRouter = createTRPCRouter({
         },
       });
 
-      // Validate response
-      const validatedData = get_SearchConsent.response.parse(consentsData);
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `${JSON.stringify(validatedData)}`,
-        });
-      }
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
+        consentsData,
+        get_SearchConsent.response,
+      );
 
       return validatedData;
     }),
@@ -120,22 +92,11 @@ export const patientMedicalHistoryRouter = createTRPCRouter({
         },
       });
 
-      // Validate response
-      const validatedData = get_SearchGoal.response.parse(goalsData);
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        const issues = validatedData.issue
-          .map(
-            (issue) =>
-              `${issue.severity}: ${issue.code}, ${issue.details?.text}`,
-          )
-          .join("; ");
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `FHIR OperationOutcome Error: ${issues}`,
-        });
-      }
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
+        goalsData,
+        get_SearchGoal.response,
+      );
 
       return validatedData;
     }),
@@ -156,24 +117,11 @@ export const patientMedicalHistoryRouter = createTRPCRouter({
         },
       );
 
-      // Validate response
-      const validatedData = get_UpdateQuestionnaireresponse.response.parse(
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
         questionnaireResponsesData,
+        get_UpdateQuestionnaireresponse.response,
       );
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        const issues = validatedData.issue
-          .map(
-            (issue) =>
-              `${issue.severity}: ${issue.code}, ${issue.details?.text}`,
-          )
-          .join("; ");
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `FHIR OperationOutcome Error: ${issues}`,
-        });
-      }
 
       return validatedData;
     }),
@@ -190,23 +138,11 @@ export const patientMedicalHistoryRouter = createTRPCRouter({
         },
       });
 
-      // Validate response
-      const validatedData =
-        get_SearchImmunization.response.parse(immunizationsData);
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        const issues = validatedData.issue
-          .map(
-            (issue) =>
-              `${issue.severity}: ${issue.code}, ${issue.details?.text}`,
-          )
-          .join("; ");
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `FHIR OperationOutcome Error: ${issues}`,
-        });
-      }
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
+        immunizationsData,
+        get_SearchImmunization.response,
+      );
 
       return validatedData;
     }),
@@ -223,17 +159,11 @@ export const patientMedicalHistoryRouter = createTRPCRouter({
         },
       });
 
-      // Validate response
-      const validatedData =
-        get_SearchMedicationstatement.response.parse(medicationsData);
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `${JSON.stringify(validatedData)}`,
-        });
-      }
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
+        medicationsData,
+        get_SearchMedicationstatement.response,
+      );
 
       return validatedData;
     }),
@@ -250,24 +180,11 @@ export const patientMedicalHistoryRouter = createTRPCRouter({
         },
       });
 
-      // Validate response
-      const validatedData = get_SearchDiagnosticreport.response.parse(
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
         diagnosticReportsData,
+        get_SearchDiagnosticreport.response,
       );
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        const issues = validatedData.issue
-          .map(
-            (issue) =>
-              `${issue.severity}: ${issue.code}, ${issue.details?.text}`,
-          )
-          .join("; ");
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `FHIR OperationOutcome Error: ${issues}`,
-        });
-      }
 
       return validatedData;
     }),
@@ -285,23 +202,11 @@ export const patientMedicalHistoryRouter = createTRPCRouter({
         },
       });
 
-      // Validate response
-      const validatedData =
-        get_SearchDocumentreference.response.parse(documentsData);
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        const issues = validatedData.issue
-          .map(
-            (issue) =>
-              `${issue.severity}: ${issue.code}, ${issue.details?.text}`,
-          )
-          .join("; ");
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `FHIR OperationOutcome Error: ${issues}`,
-        });
-      }
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
+        documentsData,
+        get_SearchDocumentreference.response,
+      );
 
       return validatedData;
     }),
@@ -319,23 +224,11 @@ export const patientMedicalHistoryRouter = createTRPCRouter({
         },
       });
 
-      // Validate response
-      const validatedData =
-        get_SearchObservation.response.parse(observationsData);
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        const issues = validatedData.issue
-          .map(
-            (issue) =>
-              `${issue.severity}: ${issue.code}, ${issue.details?.text}`,
-          )
-          .join("; ");
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `FHIR OperationOutcome Error: ${issues}`,
-        });
-      }
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
+        observationsData,
+        get_SearchObservation.response,
+      );
 
       return validatedData;
     }),

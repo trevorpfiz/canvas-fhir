@@ -1,51 +1,74 @@
 import { z } from "zod";
 
-import { createUnionSchemaWithOperationOutcome } from "./operation-outcome";
+const linkSchema = z
+  .object({
+    relation: z.string().optional(),
+    url: z.string().optional(),
+  })
+  .optional();
 
-const linkSchema = z.object({
-  relation: z.string(),
-  url: z.string(),
-});
+const codingSchema = z
+  .object({
+    code: z.string().optional(),
+    system: z.string().optional(),
+    display: z.string().optional(),
+  })
+  .optional();
 
-const codingSchema = z.object({
-  system: z.string(),
-  display: z.string(),
-});
+const categorySchema = z
+  .object({
+    coding: z.array(codingSchema).optional(),
+  })
+  .optional();
 
-const categorySchema = z.object({
-  coding: z.array(codingSchema),
-});
+const referenceSchema = z
+  .object({
+    reference: z.string().optional(),
+    type: z.string().optional(),
+  })
+  .optional();
 
-const referenceSchema = z.object({
-  reference: z.string(),
-  type: z.string(),
-});
+const periodSchema = z
+  .object({
+    start: z.string().optional(),
+    end: z.string().optional(),
+  })
+  .optional();
 
-const periodSchema = z.object({
-  start: z.string(),
-  end: z.string().optional(),
-});
+const provisionSchema = z
+  .object({
+    period: periodSchema.optional(),
+  })
+  .optional();
 
-const provisionSchema = z.object({
-  period: periodSchema.optional(),
-});
+const scopeSchema = z
+  .object({
+    coding: z.array(codingSchema).optional(),
+    text: z.string().optional(),
+  })
+  .optional();
 
-const scopeSchema = z.object({
-  text: z.string(),
-});
-
-const sourceAttachmentSchema = z.object({
-  url: z.string(),
-});
+const sourceAttachmentSchema = z
+  .object({
+    data: z.string().optional(),
+    url: z.string().optional(),
+  })
+  .optional();
 
 const consentResourceSchema = z.object({
   resourceType: z.literal("Consent"),
-  id: z.string(),
-  status: z.string(),
+  id: z.string().optional(),
+  status: z.string().optional(),
   scope: scopeSchema,
-  category: z.array(categorySchema),
+  category: z.array(categorySchema).optional(),
+  meta: z
+    .object({
+      lastUpdated: z.string().optional(),
+      versionId: z.string().optional(),
+    })
+    .optional(),
   patient: referenceSchema,
-  dateTime: z.string(),
+  dateTime: z.string().optional(),
   sourceAttachment: sourceAttachmentSchema.optional(),
   provision: provisionSchema.optional(),
 });
@@ -62,11 +85,8 @@ export const consentBundleSchema = z.object({
   entry: z.array(entrySchema).optional(),
 });
 
-export const readConsentResponseSchema = createUnionSchemaWithOperationOutcome(
-  consentResourceSchema,
-);
+export const readConsentResponseSchema = consentResourceSchema;
 
-export const searchConsentResponseSchema =
-  createUnionSchemaWithOperationOutcome(consentBundleSchema);
+export const searchConsentResponseSchema = consentBundleSchema;
 
 // Usage: Validate data with responseSchema.parse(yourDataObject)

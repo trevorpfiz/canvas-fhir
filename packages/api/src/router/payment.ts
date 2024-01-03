@@ -1,9 +1,8 @@
-import { TRPCError } from "@trpc/server";
-
 import {
   get_SearchPaymentnotice,
   post_CreatePaymentnotice,
 } from "../canvas/canvas-client";
+import { handleFhirApiResponse } from "../lib/utils";
 import { createTRPCRouter, protectedCanvasProcedure } from "../trpc";
 
 export const paymentRouter = createTRPCRouter({
@@ -29,23 +28,11 @@ export const paymentRouter = createTRPCRouter({
         },
       });
 
-      // Validate response
-      const validatedData =
-        post_CreatePaymentnotice.response.parse(paymentData);
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        const issues = validatedData.issue
-          .map(
-            (issue) =>
-              `${issue.severity}: ${issue.code}, ${issue.details?.text}`,
-          )
-          .join("; ");
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `FHIR OperationOutcome Error: ${issues}`,
-        });
-      }
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
+        paymentData,
+        post_CreatePaymentnotice.response,
+      );
 
       return validatedData;
     }),
@@ -61,22 +48,11 @@ export const paymentRouter = createTRPCRouter({
         },
       });
 
-      // Validate response
-      const validatedData = get_SearchPaymentnotice.response.parse(paymentData);
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        const issues = validatedData.issue
-          .map(
-            (issue) =>
-              `${issue.severity}: ${issue.code}, ${issue.details?.text}`,
-          )
-          .join("; ");
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `FHIR OperationOutcome Error: ${issues}`,
-        });
-      }
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
+        paymentData,
+        get_SearchPaymentnotice.response,
+      );
 
       return validatedData;
     }),

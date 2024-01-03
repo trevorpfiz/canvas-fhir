@@ -9,7 +9,7 @@ const operationOutcomeIssueSchema = z.object({
 });
 export type OperationOutcomeIssue = z.infer<typeof operationOutcomeIssueSchema>;
 
-const operationOutcomeSchema = z.object({
+export const operationOutcomeSchema = z.object({
   resourceType: z.literal("OperationOutcome"),
   issue: z.array(operationOutcomeIssueSchema),
 });

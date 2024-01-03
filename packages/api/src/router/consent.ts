@@ -1,7 +1,7 @@
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { get_ReadConsent, post_CreateConsent } from "../canvas/canvas-client";
+import { handleFhirApiResponse } from "../lib/utils";
 import { createTRPCRouter, protectedCanvasProcedure } from "../trpc";
 
 export const consentRouter = createTRPCRouter({
@@ -16,16 +16,11 @@ export const consentRouter = createTRPCRouter({
         path: { consent_id: id },
       });
 
-      // Validate response
-      const validatedData = get_ReadConsent.response.parse(consentData);
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `${JSON.stringify(validatedData)}`,
-        });
-      }
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
+        consentData,
+        get_ReadConsent.response,
+      );
 
       return validatedData;
     }),
@@ -40,16 +35,11 @@ export const consentRouter = createTRPCRouter({
         body,
       });
 
-      // Validate response
-      const validatedData = post_CreateConsent.response.parse(consentData);
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `${JSON.stringify(validatedData)}`,
-        });
-      }
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
+        consentData,
+        post_CreateConsent.response,
+      );
 
       return validatedData;
     }),

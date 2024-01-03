@@ -1,9 +1,8 @@
-import { TRPCError } from "@trpc/server";
-
 import {
   get_SearchCondition,
   post_CreateCondition,
 } from "../canvas/canvas-client";
+import { handleFhirApiResponse } from "../lib/utils";
 import { createTRPCRouter, protectedCanvasProcedure } from "../trpc";
 
 export const conditionRouter = createTRPCRouter({
@@ -18,22 +17,11 @@ export const conditionRouter = createTRPCRouter({
         body,
       });
 
-      // Validate response
-      const validatedData = post_CreateCondition.response.parse(conditionData);
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        const issues = validatedData.issue
-          .map(
-            (issue) =>
-              `${issue.severity}: ${issue.code}, ${issue.details?.text}`,
-          )
-          .join("; ");
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `FHIR OperationOutcome Error: ${issues}`,
-        });
-      }
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
+        conditionData,
+        post_CreateCondition.response,
+      );
 
       return validatedData;
     }),
@@ -48,22 +36,11 @@ export const conditionRouter = createTRPCRouter({
         query,
       });
 
-      // Validate response
-      const validatedData = get_SearchCondition.response.parse(medicationData);
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        const issues = validatedData.issue
-          .map(
-            (issue) =>
-              `${issue.severity}: ${issue.code}, ${issue.details?.text}`,
-          )
-          .join("; ");
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `FHIR OperationOutcome Error: ${issues}`,
-        });
-      }
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
+        medicationData,
+        get_SearchCondition.response,
+      );
 
       return validatedData;
     }),

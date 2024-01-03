@@ -1,6 +1,5 @@
-import { TRPCError } from "@trpc/server";
-
 import { post_CreateCoverage } from "../canvas/canvas-client";
+import { handleFhirApiResponse } from "../lib/utils";
 import { createTRPCRouter, protectedCanvasProcedure } from "../trpc";
 
 export const coverageRouter = createTRPCRouter({
@@ -16,22 +15,11 @@ export const coverageRouter = createTRPCRouter({
         body,
       });
 
-      // Validate response
-      const validatedData = post_CreateCoverage.response.parse(coverageData);
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        const issues = validatedData.issue
-          .map(
-            (issue) =>
-              `${issue.severity}: ${issue.code}, ${issue.details?.text}`,
-          )
-          .join("; ");
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `FHIR OperationOutcome Error: ${issues}`,
-        });
-      }
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
+        coverageData,
+        post_CreateCoverage.response,
+      );
 
       return validatedData;
     }),

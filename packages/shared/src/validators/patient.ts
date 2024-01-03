@@ -1,27 +1,32 @@
 import { z } from "zod";
 
-import { createUnionSchemaWithOperationOutcome } from "./operation-outcome";
-
 const linkSchema = z.object({
-  relation: z.string(),
-  url: z.string(),
+  relation: z.string().optional(),
+  url: z.string().optional(),
 });
 
 const codingSchema = z.object({
-  system: z.string(),
-  code: z.string(),
-  display: z.string(),
+  system: z.string().optional(),
+  code: z.string().optional(),
+  display: z.string().optional(),
 });
 
 const textSchema = z.object({
-  status: z.string(),
-  div: z.string(),
+  status: z.string().optional(),
+  div: z.string().optional(),
 });
 
 const extensionSchema = z
   .object({
+    extension: z
+      .array(
+        z.object({
+          url: z.string().optional(),
+          valueString: z.string().optional(),
+        }),
+      )
+      .optional(),
     url: z.string(),
-    // The value could be different types; you may need to adjust based on your data
     valueCode: z.string().optional(),
     valueCodeableConcept: z
       .object({
@@ -41,17 +46,18 @@ const extensionSchema = z
   .optional();
 
 const identifierSchema = z.object({
+  id: z.string().optional(),
   use: z.string().optional(),
   type: z
     .object({
-      coding: z.array(codingSchema),
+      coding: z.array(codingSchema).optional(),
     })
     .optional(),
   system: z.string().optional(),
-  value: z.string(),
+  value: z.string().optional(),
   assigner: z
     .object({
-      display: z.string(),
+      display: z.string().optional(),
     })
     .optional(),
   period: z
@@ -75,16 +81,22 @@ const nameSchema = z.object({
 });
 
 const telecomSchema = z.object({
-  system: z.string(),
-  value: z.string(),
+  system: z.string().optional(),
+  value: z.string().optional(),
   use: z.string().optional(),
   rank: z.number().optional(),
 });
 
 const addressSchema = z.object({
+  id: z.string().optional(),
   use: z.string().optional(),
   type: z.string().optional(),
   line: z.array(z.string()).optional(),
+  period: z
+    .object({
+      start: z.string().optional(),
+    })
+    .optional(),
   city: z.string().optional(),
   state: z.string().optional(),
   postalCode: z.string().optional(),
@@ -92,6 +104,15 @@ const addressSchema = z.object({
 });
 
 const contactSchema = z.object({
+  extension: z
+    .array(
+      z.object({
+        url: z.string().optional(),
+        valueBoolean: z.boolean().optional(),
+      }),
+    )
+    .optional(),
+  id: z.string().optional(),
   relationship: z.array(
     z.object({
       coding: z.array(codingSchema),
@@ -113,10 +134,9 @@ const communicationSchema = z.object({
   }),
 });
 
-// TODO - check with generated code
 const patientResourceSchema = z.object({
   resourceType: z.literal("Patient"),
-  id: z.string(),
+  id: z.string().optional(),
   text: textSchema,
   extension: z.array(extensionSchema).optional(),
   identifier: z.array(identifierSchema).optional(),
@@ -143,11 +163,8 @@ export const patientBundleSchema = z.object({
   entry: z.array(entrySchema).optional(),
 });
 
-export const readPatientResponseSchema = createUnionSchemaWithOperationOutcome(
-  patientResourceSchema,
-);
+export const readPatientResponseSchema = patientResourceSchema;
 
-export const searchPatientResponseSchema =
-  createUnionSchemaWithOperationOutcome(patientBundleSchema);
+export const searchPatientResponseSchema = patientBundleSchema;
 
 // Usage: Validate data with responseSchema.parse(yourDataObject)

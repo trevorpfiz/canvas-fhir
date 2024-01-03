@@ -1,4 +1,4 @@
-import { Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import { useAtom } from "jotai";
 
 import { patientIdAtom, patientNameAtom } from "~/app/(main)";
@@ -33,29 +33,31 @@ export default function Home() {
   }
 
   return (
-    <View className="flex-1 flex-col gap-4 bg-gray-100">
-      {/* Welcome message */}
-      <View className="bg-white px-6 py-6">
-        <Text className="text-3xl font-semibold text-black">
-          Good to see you, {patientName.firstName || "User"}
-        </Text>
-      </View>
+    <ScrollView className="flex-1 bg-gray-100">
+      <View className="flex-1 flex-col gap-4 bg-gray-100">
+        {/* Welcome message */}
+        <View className="bg-white px-6 py-6">
+          <Text className="text-3xl font-semibold text-black">
+            Good to see you, {patientName.firstName || "User"}
+          </Text>
+        </View>
 
-      {/* Next appointment */}
-      <View className="flex-col gap-2 px-6">
-        <Text className="text-xl font-semibold text-black">
-          Your next appointment
-        </Text>
-        <NextAppointment />
+        {/* Next appointment */}
+        <View className="flex-col gap-2 px-6">
+          <Text className="text-xl font-semibold text-black">
+            Your next appointment
+          </Text>
+          <NextAppointment />
+        </View>
+        {/* Submenu buttons */}
+        <View>
+          <SubmenuButtons />
+        </View>
+        {/* Tasks */}
+        <View className="flex-1 pb-6">
+          <Tasks />
+        </View>
       </View>
-      {/* Submenu buttons */}
-      <View>
-        <SubmenuButtons />
-      </View>
-      {/* Tasks */}
-      <View className="flex-1 pb-6">
-        <Tasks />
-      </View>
-    </View>
+    </ScrollView>
   );
 }

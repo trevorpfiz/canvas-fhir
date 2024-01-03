@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-import { createUnionSchemaWithOperationOutcome } from "./operation-outcome";
-
 const textSchema = z.object({
   status: z.string(),
   div: z.string(),
@@ -31,11 +29,8 @@ export const scheduleBundleSchema = z.object({
   entry: z.array(entrySchema).optional(),
 });
 
-export const readScheduleResponseSchema = createUnionSchemaWithOperationOutcome(
-  scheduleResourceSchema,
-);
+export const readScheduleResponseSchema = scheduleResourceSchema;
 
-export const searchScheduleResponseSchema =
-  createUnionSchemaWithOperationOutcome(scheduleBundleSchema);
+export const searchScheduleResponseSchema = scheduleBundleSchema;
 
 // Usage: Validate data with responseSchema.parse(yourDataObject)

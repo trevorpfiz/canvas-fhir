@@ -1,7 +1,7 @@
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { get_ReadObservation } from "../canvas/canvas-client";
+import { handleFhirApiResponse } from "../lib/utils";
 import { createTRPCRouter, protectedCanvasProcedure } from "../trpc";
 
 export const observationRouter = createTRPCRouter({
@@ -16,16 +16,11 @@ export const observationRouter = createTRPCRouter({
         path: { observation_id: id },
       });
 
-      // Validate response
-      const validatedData = get_ReadObservation.response.parse(observationData);
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `${JSON.stringify(validatedData)}`,
-        });
-      }
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
+        observationData,
+        get_ReadObservation.response,
+      );
 
       return validatedData;
     }),

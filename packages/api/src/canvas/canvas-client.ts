@@ -25,6 +25,10 @@ import {
   searchConditionResponseSchema,
 } from "@acme/shared/src/validators/condition";
 import {
+  readConsentResponseSchema,
+  searchConsentResponseSchema,
+} from "@acme/shared/src/validators/consent";
+import {
   readCoverageResponseSchema,
   searchCoverageResponseSchema,
 } from "@acme/shared/src/validators/coverage";
@@ -65,6 +69,10 @@ import {
   searchObservationResponseSchema,
 } from "@acme/shared/src/validators/observation";
 import { postOrPutResponseSchema } from "@acme/shared/src/validators/operation-outcome";
+import {
+  readPatientResponseSchema,
+  searchPatientResponseSchema,
+} from "@acme/shared/src/validators/patient";
 import {
   readPaymentNoticeResponseSchema,
   searchPaymentNoticeResponseSchema,
@@ -1051,72 +1059,7 @@ export const get_SearchConsent = {
       period: z.string().optional(),
     }),
   }),
-  response: z.object({
-    entry: z
-      .array(
-        z.object({
-          resource: z
-            .object({
-              category: z
-                .array(
-                  z.object({
-                    coding: z
-                      .array(
-                        z.object({
-                          display: z.string().optional(),
-                          system: z.string().optional(),
-                        }),
-                      )
-                      .optional(),
-                  }),
-                )
-                .optional(),
-              dateTime: z.string().optional(),
-              id: z.string().optional(),
-              patient: z
-                .object({
-                  reference: z.string().optional(),
-                })
-                .optional(),
-              provision: z
-                .object({
-                  period: z
-                    .object({
-                      end: z.string().optional(),
-                      start: z.string().optional(),
-                    })
-                    .optional(),
-                })
-                .optional(),
-              resourceType: z.string().optional(),
-              scope: z
-                .object({
-                  coding: z
-                    .array(
-                      z.object({
-                        code: z.string().optional(),
-                        system: z.string().optional(),
-                      }),
-                    )
-                    .optional(),
-                })
-                .optional(),
-              sourceAttachment: z
-                .object({
-                  data: z.string().optional(),
-                  url: z.string().optional(),
-                })
-                .optional(),
-              status: z.string().optional(),
-            })
-            .optional(),
-        }),
-      )
-      .optional(),
-    resourceType: z.string().optional(),
-    total: z.number(),
-    type: z.string().optional(),
-  }),
+  response: searchConsentResponseSchema,
 };
 
 export type post_CreateConsent = typeof post_CreateConsent;
@@ -1179,66 +1122,7 @@ export const get_ReadConsent = {
       consent_id: z.string(),
     }),
   }),
-  response: z.object({
-    category: z
-      .array(
-        z.object({
-          coding: z
-            .array(
-              z.object({
-                code: z.string().optional(),
-                display: z.string().optional(),
-                system: z.string().optional(),
-              }),
-            )
-            .optional(),
-        }),
-      )
-      .optional(),
-    dateTime: z.string().optional(),
-    id: z.string().optional(),
-    meta: z
-      .object({
-        lastUpdated: z.string().optional(),
-        versionId: z.string().optional(),
-      })
-      .optional(),
-    patient: z
-      .object({
-        reference: z.string().optional(),
-      })
-      .optional(),
-    provision: z
-      .object({
-        period: z
-          .object({
-            end: z.string().optional(),
-            start: z.string().optional(),
-          })
-          .optional(),
-      })
-      .optional(),
-    resourceType: z.string().optional(),
-    scope: z
-      .object({
-        coding: z
-          .array(
-            z.object({
-              code: z.string().optional(),
-              system: z.string().optional(),
-            }),
-          )
-          .optional(),
-      })
-      .optional(),
-    sourceAttachment: z
-      .object({
-        data: z.string().optional(),
-        url: z.string().optional(),
-      })
-      .optional(),
-    status: z.string().optional(),
-  }),
+  response: readConsentResponseSchema,
 };
 
 export type get_SearchCoverage = typeof get_SearchCoverage;
@@ -2159,176 +2043,7 @@ export const get_SearchPatient = {
       _sort: z.string().optional(),
     }),
   }),
-  response: z.object({
-    entry: z
-      .array(
-        z.object({
-          resource: z
-            .object({
-              active: z.boolean().optional(),
-              address: z
-                .array(
-                  z.object({
-                    city: z.string().optional(),
-                    country: z.string().optional(),
-                    id: z.string().optional(),
-                    line: z.array(z.string()).optional(),
-                    period: z
-                      .object({
-                        start: z.string().optional(),
-                      })
-                      .optional(),
-                    postalCode: z.string().optional(),
-                    state: z.string().optional(),
-                    type: z.string().optional(),
-                    use: z.string().optional(),
-                  }),
-                )
-                .optional(),
-              birthDate: z.string().optional(),
-              communication: z
-                .array(
-                  z.object({
-                    language: z
-                      .object({
-                        coding: z
-                          .array(
-                            z.object({
-                              code: z.string().optional(),
-                              display: z.string().optional(),
-                              system: z.string().optional(),
-                            }),
-                          )
-                          .optional(),
-                        text: z.string().optional(),
-                      })
-                      .optional(),
-                  }),
-                )
-                .optional(),
-              contact: z
-                .array(
-                  z.object({
-                    extension: z
-                      .array(
-                        z.object({
-                          url: z.string().optional(),
-                          valueBoolean: z.boolean().optional(),
-                        }),
-                      )
-                      .optional(),
-                    id: z.string().optional(),
-                    name: z
-                      .object({
-                        text: z.string().optional(),
-                      })
-                      .optional(),
-                    relationship: z
-                      .array(
-                        z.object({
-                          text: z.string().optional(),
-                        }),
-                      )
-                      .optional(),
-                    telecom: z
-                      .array(
-                        z.object({
-                          system: z.string().optional(),
-                          value: z.string().optional(),
-                        }),
-                      )
-                      .optional(),
-                  }),
-                )
-                .optional(),
-              deceasedBoolean: z.boolean().optional(),
-              extension: z
-                .array(
-                  z.object({
-                    extension: z
-                      .array(
-                        z.object({
-                          url: z.string().optional(),
-                          valueString: z.string().optional(),
-                        }),
-                      )
-                      .optional(),
-                    url: z.string().optional(),
-                    valueCode: z.string().optional(),
-                    valueString: z.string().optional(),
-                  }),
-                )
-                .optional(),
-              gender: z.string().optional(),
-              id: z.string().optional(),
-              identifier: z
-                .array(
-                  z.object({
-                    assigner: z
-                      .object({
-                        display: z.string().optional(),
-                      })
-                      .optional(),
-                    id: z.string().optional(),
-                    period: z
-                      .object({
-                        end: z.string().optional(),
-                        start: z.string().optional(),
-                      })
-                      .optional(),
-                    system: z.string().optional(),
-                    type: z
-                      .object({
-                        coding: z
-                          .array(
-                            z.object({
-                              code: z.string().optional(),
-                              system: z.string().optional(),
-                            }),
-                          )
-                          .optional(),
-                      })
-                      .optional(),
-                    use: z.string().optional(),
-                    value: z.string().optional(),
-                  }),
-                )
-                .optional(),
-              name: z
-                .array(
-                  z.object({
-                    family: z.string().optional(),
-                    given: z.array(z.string()).optional(),
-                    use: z.string().optional(),
-                  }),
-                )
-                .optional(),
-              resourceType: z.string().optional(),
-              telecom: z
-                .array(
-                  z.object({
-                    id: z.string().optional(),
-                    system: z.string().optional(),
-                    use: z.string().optional(),
-                    value: z.string().optional(),
-                  }),
-                )
-                .optional(),
-              text: z
-                .object({
-                  div: z.string().optional(),
-                  status: z.string().optional(),
-                })
-                .optional(),
-            })
-            .optional(),
-        }),
-      )
-      .optional(),
-    resourceType: z.string().optional(),
-    total: z.number().optional(),
-    type: z.string().optional(),
-  }),
+  response: searchPatientResponseSchema,
 };
 
 export type post_CreatePatient = typeof post_CreatePatient;
@@ -2472,176 +2187,7 @@ export const get_ReadPatient = {
       patient_id: z.string(),
     }),
   }),
-  response: z.object({
-    active: z.boolean().optional(),
-    address: z
-      .array(
-        z.object({
-          city: z.string().optional(),
-          country: z.string().optional(),
-          id: z.string().optional(),
-          line: z.array(z.string()).optional(),
-          period: z
-            .object({
-              start: z.string().optional(),
-            })
-            .optional(),
-          postalCode: z.string().optional(),
-          state: z.string().optional(),
-          type: z.string().optional(),
-          use: z.string().optional(),
-        }),
-      )
-      .optional(),
-    birthDate: z.string().optional(),
-    communication: z
-      .array(
-        z.object({
-          language: z
-            .object({
-              coding: z
-                .array(
-                  z.object({
-                    code: z.string().optional(),
-                    display: z.string().optional(),
-                    system: z.string().optional(),
-                  }),
-                )
-                .optional(),
-              text: z.string().optional(),
-            })
-            .optional(),
-        }),
-      )
-      .optional(),
-    contact: z
-      .array(
-        z.object({
-          extension: z
-            .array(
-              z.object({
-                url: z.string().optional(),
-                valueBoolean: z.boolean().optional(),
-              }),
-            )
-            .optional(),
-          id: z.string().optional(),
-          name: z
-            .object({
-              text: z.string().optional(),
-            })
-            .optional(),
-          relationship: z
-            .array(
-              z.object({
-                text: z.string().optional(),
-              }),
-            )
-            .optional(),
-          telecom: z
-            .array(
-              z.object({
-                system: z.string().optional(),
-                value: z.string().optional(),
-              }),
-            )
-            .optional(),
-        }),
-      )
-      .optional(),
-    deceasedBoolean: z.boolean().optional(),
-    extension: z
-      .array(
-        z.object({
-          extension: z
-            .array(
-              z.object({
-                url: z.string().optional(),
-                valueString: z.string().optional(),
-              }),
-            )
-            .optional(),
-          url: z.string().optional(),
-          valueCode: z.string().optional(),
-          valueString: z.string().optional(),
-        }),
-      )
-      .optional(),
-    gender: z.string().optional(),
-    id: z.string().optional(),
-    identifier: z
-      .array(
-        z.object({
-          assigner: z
-            .object({
-              display: z.string().optional(),
-            })
-            .optional(),
-          id: z.string().optional(),
-          period: z
-            .object({
-              end: z.string().optional(),
-              start: z.string().optional(),
-            })
-            .optional(),
-          system: z.string().optional(),
-          type: z
-            .object({
-              coding: z
-                .array(
-                  z.object({
-                    code: z.string().optional(),
-                    system: z.string().optional(),
-                  }),
-                )
-                .optional(),
-            })
-            .optional(),
-          use: z.string().optional(),
-          value: z.string().optional(),
-        }),
-      )
-      .optional(),
-    meta: z
-      .object({
-        lastUpdated: z.string().optional(),
-        versionId: z.string().optional(),
-      })
-      .optional(),
-    name: z
-      .array(
-        z.object({
-          family: z.string().optional(),
-          given: z.array(z.string()).optional(),
-          use: z.string().optional(),
-        }),
-      )
-      .optional(),
-    photo: z
-      .array(
-        z.object({
-          url: z.string().optional(),
-        }),
-      )
-      .optional(),
-    resourceType: z.string().optional(),
-    telecom: z
-      .array(
-        z.object({
-          id: z.string().optional(),
-          system: z.string().optional(),
-          use: z.string().optional(),
-          value: z.string().optional(),
-        }),
-      )
-      .optional(),
-    text: z
-      .object({
-        div: z.string().optional(),
-        status: z.string().optional(),
-      })
-      .optional(),
-  }),
+  response: readPatientResponseSchema,
 };
 
 export type put_UpdatePatient = typeof put_UpdatePatient;

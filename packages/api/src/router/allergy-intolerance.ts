@@ -1,9 +1,8 @@
-import { TRPCError } from "@trpc/server";
-
 import {
   get_SearchAllergen,
   post_CreateAllergyintolerance,
 } from "../canvas/canvas-client";
+import { handleFhirApiResponse } from "../lib/utils";
 import { createTRPCRouter, protectedCanvasProcedure } from "../trpc";
 
 export const allergyIntoleranceRouter = createTRPCRouter({
@@ -18,24 +17,11 @@ export const allergyIntoleranceRouter = createTRPCRouter({
         body,
       });
 
-      // Validate response
-      const validatedData = post_CreateAllergyintolerance.response.parse(
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
         allergyIntoleranceData,
+        post_CreateAllergyintolerance.response,
       );
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        const issues = validatedData.issue
-          .map(
-            (issue) =>
-              `${issue.severity}: ${issue.code}, ${issue.details?.text}`,
-          )
-          .join("; ");
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `FHIR OperationOutcome Error: ${issues}`,
-        });
-      }
 
       return validatedData;
     }),
@@ -50,22 +36,11 @@ export const allergyIntoleranceRouter = createTRPCRouter({
         query,
       });
 
-      // Validate response
-      const validatedData = get_SearchAllergen.response.parse(allergenData);
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        const issues = validatedData.issue
-          .map(
-            (issue) =>
-              `${issue.severity}: ${issue.code}, ${issue.details?.text}`,
-          )
-          .join("; ");
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `FHIR OperationOutcome Error: ${issues}`,
-        });
-      }
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
+        allergenData,
+        get_SearchAllergen.response,
+      );
 
       return validatedData;
     }),

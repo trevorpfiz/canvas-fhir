@@ -1,11 +1,20 @@
 import React, { useMemo } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
+import { Calendar } from "react-native-calendars";
 import { useRouter } from "expo-router";
 import { useAtom } from "jotai";
 
 import { patientIdAtom } from "~/app/(main)";
 import { AppointmentCard } from "~/components/ui/cards/appointment-card";
 import { LoaderComponent } from "~/components/ui/loader";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/rn-ui/components/ui/card";
 import { api } from "~/utils/api";
 import { mapPractitionerIdsToNames } from "~/utils/scheduling";
 
@@ -45,7 +54,7 @@ export default function NextAppointment() {
   }, [appointmentQuery.data?.entry]);
 
   if (isLoading) {
-    return <LoaderComponent className="mt-12" />;
+    return <LoaderComponent className="mb-14 mt-16" />;
   }
 
   if (isError) {
@@ -72,7 +81,13 @@ export default function NextAppointment() {
           practitionerInfo={practitionerInfo}
         />
       ) : (
-        <Text className="p-8">{`No appointments found.`}</Text>
+        <Card className="shadow-none">
+          <CardContent className="px-12 py-12">
+            <Text className="text-lg">
+              You do not have any appointments scheduled at this time
+            </Text>
+          </CardContent>
+        </Card>
       )}
     </TouchableOpacity>
   );

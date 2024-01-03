@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-import { createUnionSchemaWithOperationOutcome } from "./operation-outcome";
-
 const codingSchema = z.object({
   system: z.string(),
   code: z.string(),
@@ -56,10 +54,8 @@ export const questionnaireBundleSchema = z.object({
   entry: z.array(entrySchema).optional(),
 });
 
-export const readQuestionnaireResponseSchema =
-  createUnionSchemaWithOperationOutcome(questionnaireResourceSchema);
+export const readQuestionnaireResponseSchema = questionnaireResourceSchema;
 
-export const searchQuestionnaireResponseSchema =
-  createUnionSchemaWithOperationOutcome(questionnaireBundleSchema);
+export const searchQuestionnaireResponseSchema = questionnaireBundleSchema;
 
 // Usage: Validate data with responseSchema.parse(yourDataObject)

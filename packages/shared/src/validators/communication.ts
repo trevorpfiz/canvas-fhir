@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-import { createUnionSchemaWithOperationOutcome } from "./operation-outcome";
-
 const linkSchema = z.object({
   relation: z.string(),
   url: z.string(),
@@ -41,10 +39,8 @@ export const communicationBundleSchema = z.object({
   entry: z.array(entrySchema).optional(),
 });
 
-export const readCommunicationResponseSchema =
-  createUnionSchemaWithOperationOutcome(communicationResourceSchema);
+export const readCommunicationResponseSchema = communicationResourceSchema;
 
-export const searchCommunicationResponseSchema =
-  createUnionSchemaWithOperationOutcome(communicationBundleSchema);
+export const searchCommunicationResponseSchema = communicationBundleSchema;
 
 // Usage: Validate data with responseSchema.parse(yourDataObject)

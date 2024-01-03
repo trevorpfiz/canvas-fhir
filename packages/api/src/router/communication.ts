@@ -1,4 +1,3 @@
-import { TRPCError } from "@trpc/server";
 import { compareDesc } from "date-fns";
 
 import {
@@ -7,6 +6,7 @@ import {
   get_SearchCommunicationSender,
   post_CreateCommunication,
 } from "../canvas/canvas-client";
+import { handleFhirApiResponse } from "../lib/utils";
 import { createTRPCRouter, protectedCanvasProcedure } from "../trpc";
 
 export const communicationRouter = createTRPCRouter({
@@ -21,23 +21,11 @@ export const communicationRouter = createTRPCRouter({
         body,
       });
 
-      // Validate response
-      const validatedData =
-        post_CreateCommunication.response.parse(communicationData);
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        const issues = validatedData.issue
-          .map(
-            (issue) =>
-              `${issue.severity}: ${issue.code}, ${issue.details?.text}`,
-          )
-          .join("; ");
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `FHIR OperationOutcome Error: ${issues}`,
-        });
-      }
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
+        communicationData,
+        post_CreateCommunication.response,
+      );
 
       return validatedData;
     }),
@@ -52,23 +40,11 @@ export const communicationRouter = createTRPCRouter({
         query,
       });
 
-      // Validate resposne
-      const validatedData =
-        get_SearchCommunicationSender.response.parse(communicationData);
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        const issues = validatedData.issue
-          .map(
-            (issue) =>
-              `${issue.severity}: ${issue.code}, ${issue.details?.text}`,
-          )
-          .join("; ");
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `FHIR OperationOutcome Error: ${issues}`,
-        });
-      }
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
+        communicationData,
+        get_SearchCommunicationSender.response,
+      );
 
       return validatedData;
     }),
@@ -88,23 +64,11 @@ export const communicationRouter = createTRPCRouter({
         },
       );
 
-      // Validate response
-      const validatedData =
-        get_ReadCommunication.response.parse(communicationData);
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        const issues = validatedData.issue
-          .map(
-            (issue) =>
-              `${issue.severity}: ${issue.code}, ${issue.details?.text}`,
-          )
-          .join("; ");
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `FHIR OperationOutcome Error: ${issues}`,
-        });
-      }
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
+        communicationData,
+        get_ReadCommunication.response,
+      );
 
       return validatedData;
     }),
@@ -117,23 +81,11 @@ export const communicationRouter = createTRPCRouter({
       // Reuse the searchCommunications logic
       const communicationData = await api.get("/Communication", { query });
 
-      // Validate response
-      const validatedData =
-        get_SearchCommunicationSender.response.parse(communicationData);
-
-      // Check if response is OperationOutcome
-      if (validatedData?.resourceType === "OperationOutcome") {
-        const issues = validatedData.issue
-          .map(
-            (issue) =>
-              `${issue.severity}: ${issue.code}, ${issue.details?.text}`,
-          )
-          .join("; ");
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `FHIR OperationOutcome Error: ${issues}`,
-        });
-      }
+      // Validate response and check for OperationOutcome
+      const validatedData = handleFhirApiResponse(
+        communicationData,
+        get_SearchCommunicationSender.response,
+      );
 
       // Define a structure to store chat previews
       interface ChatPreview {
@@ -171,23 +123,11 @@ export const communicationRouter = createTRPCRouter({
               },
             },
           );
-          // validate providerDetails
-          const validatedProviderDetails =
-            get_ReadPractitioner.response.parse(providerDetails);
-
-          // Check if response is OperationOutcome
-          if (validatedProviderDetails?.resourceType === "OperationOutcome") {
-            const issues = validatedProviderDetails.issue
-              .map(
-                (issue) =>
-                  `${issue.severity}: ${issue.code}, ${issue.details?.text}`,
-              )
-              .join("; ");
-            throw new TRPCError({
-              code: "BAD_REQUEST",
-              message: `FHIR OperationOutcome Error: ${issues}`,
-            });
-          }
+          // Validate response and check for OperationOutcome
+          const validatedProviderDetails = handleFhirApiResponse(
+            providerDetails,
+            get_ReadPractitioner.response,
+          );
 
           chatPreviews[recipientId] = {
             recipient: {
@@ -220,31 +160,15 @@ export const communicationRouter = createTRPCRouter({
         query: { sender: query.recipient, recipient: query.sender },
       });
 
-      // Validate responses
-      const validatedSenderMsgs =
-        get_SearchCommunicationSender.response.parse(senderMsgsResponse);
-      const validatedRecipientMsgs =
-        get_SearchCommunicationSender.response.parse(recipientMsgsResponse);
-
-      // Check if responses are OperationOutcome
-      if (
-        validatedSenderMsgs?.resourceType === "OperationOutcome" ||
-        validatedRecipientMsgs?.resourceType === "OperationOutcome"
-      ) {
-        const issues = [
-          ...(validatedSenderMsgs?.issue || []),
-          ...(validatedRecipientMsgs?.issue || []),
-        ]
-          .map(
-            (issue) =>
-              `${issue.severity}: ${issue.code}, ${issue.details?.text}`,
-          )
-          .join("; ");
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: `FHIR OperationOutcome Error: ${issues}`,
-        });
-      }
+      // Validate responses and check for OperationOutcome
+      const validatedSenderMsgs = handleFhirApiResponse(
+        senderMsgsResponse,
+        get_SearchCommunicationSender.response,
+      );
+      const validatedRecipientMsgs = handleFhirApiResponse(
+        recipientMsgsResponse,
+        get_SearchCommunicationSender.response,
+      );
 
       // Process a single message
       async function fetchPersonDetails(api, reference) {
